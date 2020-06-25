@@ -50,8 +50,6 @@ def plot_learning_curve(x, scores, epsilons, filename, lines=None):
 
 
 if __name__ == '__main__':
-    #env = gym.make('LunarLander-v2')
-
 
     # alpha = learning rate - gamma = discount factor - epsilon - batch_size - input dimensions
     # um wv epsilon weniger wird - epsilon minimum wert, max memory size = 1 million
@@ -62,11 +60,11 @@ if __name__ == '__main__':
 
     #TODO: Problem mit input Shape da bei ihm vector von 8 zahlen bei mir 4x4x1 matrix
     ddqn_agent = DDQNAgent(alpha=0.0005, gamma=0.99, n_actions=4, epsilon=1.0,
-                            batch_size=32, input_dims=4)
-    n_games = 400
+                            batch_size=64, input_dims=4)
+    n_games = 200
 
     # load saved Model Here
-    ddqn_agent.load_model()
+    #ddqn_agent.load_model()
 
     #TODO: Alles in numpy arrays umwandeln
     epoches = []
@@ -108,5 +106,5 @@ if __name__ == '__main__':
     filename = 'Epoch_Score.png'
     x = [i+1 for i in range(n_games)]
 
-    plot_learning_curve(x, np.array(epoches), np.array(ddqn_scores), filename)
-    #plot_learning_curve_simple(np.array(epoches), np.array(ddqn_scores), filename)
+    #plot_learning_curve(x, np.array(epoches), np.array(ddqn_scores), filename)
+    plot_learning_curve_simple(np.array(epoches), np.array(ddqn_scores), filename)

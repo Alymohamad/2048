@@ -111,7 +111,7 @@ class DDQNAgent(object):
     # name of file - nach wv er syncen soll zwischen den 2 Networks replace target ist hyper parameter
     def __init__(self, alpha, gamma, n_actions, epsilon, batch_size,
                  input_dims, epsilon_decr=0.999966, epsilon_end=0.001,
-                 mem_size=1000000, fname='ddqn_model.h5', replace_target=100):
+                 mem_size=1000000, fname='ddqn_model.h5', replace_target=25):
         self.n_actions = n_actions
         self.action_space = [i for i in range(self.n_actions)]
         self.gamma = gamma
@@ -159,29 +159,38 @@ class DDQNAgent(object):
             action_values = np.array(self.action_space, dtype=np.int8)
             action_indices = np.dot(action, action_values)
 
+
             # Hier DQN Q Fromel von goolgles paper Y_t DQN = ....
 
             # used for values for the actions that we calculate to be maximum
             q_next = self.target.predict(new_state)
+            #print('---------------------------------------------- 1')
             q_eval = self.q_eval.predict(new_state)
+            #print('---------------------------------------------- 2')
 
             # q preticted to handle y - q(s,a) part
             q_pred = self.q_eval.predict(state)
 
-            max_actions = np.argmax(q_eval,axis=1)
+            max_actions = np.argmax(q_eval, axis=1)
 
             q_target = q_pred
 
             batch_index = np.arange(self.batch_size, dtype=np.int32)
 
+            #print('---------------------------------------------- 3')
+
             q_target[batch_index, action_indices] = reward +\
                                                     self.gamma*q_next[batch_index, max_actions.astype(int)]*done
             _ = self.q_eval.fit(state, q_target, verbose=0)
 
+            #print('---------------------------------------------- 4')
+
             self.epsilon = self.epsilon*self.epsilon_decr if self.epsilon > self.epsilon_end else self.epsilon_end
 
             if self.memory.mem_cntr % self.replace_target == 0:
+                #print('---------------------------------------------- 5')
                 self.update_network_parameters()
+                #print('---------------------------------------------- 6')
 
     def update_network_parameters(self):
         self.target.set_weights(self.q_eval.get_weights())
