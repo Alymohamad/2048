@@ -6,4 +6,4 @@ files:
 
 hooks:
   ApplicationStart:
-    - location: /RunJob.sh
+    - location: RunJob.sh
