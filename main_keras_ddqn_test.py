@@ -97,7 +97,7 @@ if __name__ == '__main__':
         print('\n---------\n')
         if i%5 == 0 and i > 0:
             print('------------------- hier')
-            #gamegrid.ddqn_agent.save_model()
+            gamegrid.ddqn_agent.save_model()
 
         epoches.append(i)
 
