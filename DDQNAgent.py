@@ -128,8 +128,8 @@ class DDQNAgent(object):
     # um wv epsilon weniger wird - epsilon minimum wert, max memory size = 1 million
     # name of file - nach wv er syncen soll zwischen den 2 Networks replace target ist hyper parameter
     def __init__(self, alpha, gamma, n_actions, epsilon, batch_size,
-                 input_dims, epsilon_decr=0.9999334, epsilon_end=0.001,
-                 mem_size=1000000, fname='exp5_ddqn_model.h5', replace_target=100):
+                 input_dims, epsilon_decr=0.9999334, epsilon_end=0.15,
+                 mem_size=1000000, fname='exp6_ddqn_model.h5', replace_target=100):
 
         self.n_actions = n_actions
         self.action_space = [i for i in range(self.n_actions)]

@@ -124,9 +124,9 @@ if __name__ == '__main__':
 
         #TODO: Eine Liste machen und speichern wie oft welches grösste Tile erreicht wurde wie oft welches grösste Tile erreicht wurde
         #TODO: Diagramme und Modells nicht immer überschreiben sondern extra ordner für jedes einzelne machen und immer passend benennen
-    filename_score = 'exp5_Epoch_Score.png'
-    filename_tile = 'exp5Epoch_Biggest_Tile.png'
-    filename_stats_tiles = 'exp5biggest_tiles_stats.txt'
+    filename_score = 'exp6_Epoch_Score.png'
+    filename_tile = 'exp6Epoch_Biggest_Tile.png'
+    filename_stats_tiles = 'exp6biggest_tiles_stats.txt'
     print(filename_score)
 
     x = [i+1 for i in range(n_games)]
