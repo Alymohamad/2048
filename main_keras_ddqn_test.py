@@ -3,6 +3,15 @@ import numpy as np
 from DDQNAgent import DDQNAgent
 from puzzle import GameGrid
 import matplotlib.pyplot as plt
+import numpy as np
+import json
+
+
+def save_biggest_tiles(list, name):
+    unique, counts = np.unique(list, return_counts=True)
+    stats = str(dict(zip(unique, counts)))
+    with open(name, 'w') as file:
+        file.write(json.dumps(stats))
 
 def plot_learning_curve_simple(epoche, scores, filename):
     # Data for plotting
@@ -12,6 +21,18 @@ def plot_learning_curve_simple(epoche, scores, filename):
 
     ax.set(xlabel='Epoche', ylabel='Points',
            title='Points per Epoche Graph')
+    ax.grid()
+    fig.savefig(filename)
+    plt.show()
+
+def plot_learning_curve_simple_biggest_tile(epoche, tile, filename):
+    # Data for plotting
+
+    fig, ax = plt.subplots()
+    ax.plot(epoche, tile)
+
+    ax.set(xlabel='Epoche', ylabel='Biggest Tile',
+           title='Biggest Tile per Epoche Graph')
     ax.grid()
     fig.savefig(filename)
     plt.show()
@@ -61,7 +82,7 @@ if __name__ == '__main__':
     #TODO: Problem mit input Shape da bei ihm vector von 8 zahlen bei mir 4x4x1 matrix
     ddqn_agent = DDQNAgent(alpha=0.0005, gamma=0.99, n_actions=4, epsilon=1.0,
                             batch_size=64, input_dims=4)
-    n_games = 200
+    n_games = 500
 
     # load saved Model Here
     #ddqn_agent.load_model()
@@ -95,16 +116,26 @@ if __name__ == '__main__':
         avg_scores.append(avg_score)
         print('\nepisode: ', i, 'score %.2f' %gamegrid.score, 'average score %.2f' %avg_score)
         print('\n---------\n')
-        if i%5 == 0 and i > 0:
-            print('------------------- hier')
+        if i%10 == 0 and i > 0:
+            #print('------------------- hier')
             gamegrid.ddqn_agent.save_model()
 
         epoches.append(i)
 
         #TODO: Eine Liste machen und speichern wie oft welches grösste Tile erreicht wurde wie oft welches grösste Tile erreicht wurde
         #TODO: Diagramme und Modells nicht immer überschreiben sondern extra ordner für jedes einzelne machen und immer passend benennen
-    filename = 'Epoch_Score.png'
+    filename_score = 'exp0_Epoch_Score.png'
+    filename_tile = 'exp0Epoch_Biggest_Tile.png'
+    filename_stats_tiles = 'exp0biggest_tiles_stats.txt'
+    print(filename_score)
+
     x = [i+1 for i in range(n_games)]
 
-    #plot_learning_curve(x, np.array(epoches), np.array(ddqn_scores), filename)
-    plot_learning_curve_simple(np.array(epoches), np.array(ddqn_scores), filename)
+    #plot_learning_curve(x, np.array(epoches), np.array(ddqn_scores), filename_score)
+    plot_learning_curve_simple(np.array(epoches), np.array(ddqn_scores), filename_score)
+    plot_learning_curve_simple_biggest_tile(np.array(epoches), np.array(ddqn_biggest_tiles), filename_tile)
+
+    save_biggest_tiles(ddqn_biggest_tiles, filename_stats_tiles)
+
+    #TODO: in einer txt. ausgeben welche Größte tiles wie oft erreicht wurden und Diagramme wie slowake anpassen
+    #TODO: Eventuell schauen wo man performance sparen kann ?

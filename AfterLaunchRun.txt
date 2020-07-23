@@ -8,3 +8,30 @@ chmod +x ./install
 sudo ./install auto
 sudo service codedeploy-agent status
 sudo service codedeploy-agent start
+
+yum install gcc openssl-devel bzip2-devel libffi-devel
+cd /opt
+sudo wget https://www.python.org/ftp/python/3.7.5/Python-3.7.5.tgz
+sudo tar xzf Python-3.7.5.tgz
+cd Python-3.7.5
+sudo ./configure --enable-optimizations
+sudo make altinstall
+python3.7 -V
+
+
+
+Für python 3 on ami linux https://sixbyseven.dev/how-to-install-python-3-x-on-amazon-ec2-instance/
+
+
+install pip https://gist.github.com/chaityacshah/b20b851266eea3625eb7a06baca2a1d3
+
+
+sudo yum install python36-devel
+
+pip install -r req.txt --user
+
+sudo yum install tkinter
+sudo yum install gcc72-c++
+
+git clone https://Alymohamad:Mesh3arefgh@github.com/Alymohamad/2048
+

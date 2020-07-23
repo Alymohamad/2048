@@ -16,10 +16,10 @@ class GameGrid(Frame):
     REWARD_AKTUELLES_STATE_GROSSTE_KACHEL = 0.5
     REWARD_AKTUELLES_STATE_SCORE = 0.5
 
-    REWARD_POTENZIAL_STATE_ECKE = 0.3
-    REWARD_POTENZIAL_STATE_FREIE_KACHELN = 0.3
-    REWARD_POTENZIAL_STATE_MONOTONIE = 0.2
-    REWARD_POTENZIAL_STATE_GLEICHMAESSIG = 0.2
+    REWARD_POTENZIAL_STATE_ECKE = 0.25
+    REWARD_POTENZIAL_STATE_FREIE_KACHELN = 0.75
+    #REWARD_POTENZIAL_STATE_MONOTONIE = 0.2
+    #REWARD_POTENZIAL_STATE_GLEICHMAESSIG = 0.2
 
 
     def __init__(self, agent):
@@ -56,10 +56,10 @@ class GameGrid(Frame):
 
 #TODO: Name anpassen - Hier kommt mein code Rein
     def task(self):
-        self.powers_of_two_matrix = self.translate_matrix(self.matrix)
+        self.normalized_matrix = self.translate_matrix()
 
         #TODO: WIESO WIRD CHOOSE ACION NICHT ERKANNT????????????????? !!!!!!!!!!!!!!!!!!!!!!!!!!
-        reward, done_new, action = self.step(self.ddqn_agent.choose_action(self.powers_of_two_matrix))
+        reward, done_new, action = self.step(self.ddqn_agent.choose_action(self.normalized_matrix))
         done = self.check_if_done_auto(done_new)
         if done != True:
             done = False
@@ -91,47 +91,116 @@ class GameGrid(Frame):
     #                  Monotonie (fängt gross an und wird kleiner) nur bei großen kacheln wichtig bei 2 und 4 und 8 egal eigentlich??
     #                  gleichmäßigkeit (gleiche kacheln neben einander)
 
-    #TODO: Weitere Reward Kriterien noch einbauen (Potenzial)
-    #TODO: HIER DIE VERTEILUGN PARAMETARISIEREN UM ZU TUNEN
     def calc_reward(self, new_points):
+        self.get_free_boxes()
+
         #momentan + potenzial
         reward = 0
+        reward_momentan = 0
+        reward_potenzial = 0
         if logic.game_state(self.matrix) == 'lose':
-            return -100
-        if np.array_equal(self.matrix_old, self.matrix):
             return -10
+        if np.array_equal(self.matrix_old, self.matrix):
+            return -5
 
         # Wenn es eine neue größte kache gibt
         if self.biggest_tile > self.get_biggest_tile(self.matrix):
-            reward += self.REWARD_AKTUELLES_STATE_GROSSTE_KACHEL
+            reward_momentan += self.REWARD_AKTUELLES_STATE_GROSSTE_KACHEL
 
         #TODO: hier sollte mit der alten matrix gearbeitet werden
-        max_points_possible = self.calc_max_points_possible(self.matrix_old)
+        max_points_possible = self.calc_max_points_possible()
 
-        #TODO: Guter ansatz oder besser alle punkte geben ?
+        #TODO: momentan bei 0 möglichen punkten wird nix vergeben Guter ansatz die hälfte geben oder gaarnix oder besser alle punkte geben ?
         #wenn keine Punkte möglich sind gib ihm hälfte der möglichen punkte
         if(max_points_possible == 0):
-            reward = reward + self.REWARD_AKTUELLES_STATE_SCORE * 0.5
+        #    reward_momentan = reward_momentan + self.REWARD_AKTUELLES_STATE_SCORE * 0.5
+            max_points_possible = 1 #für die devidierung unten sowieso egal da wenn max possible points 0 sind muss possible points auch 0 sei
         else:
             #TODO: Arbeitet er hier mit der MAtrix nach der Aktion oder davor ? sollte mit der matrix vor der aktion arbeiten
-            reward = reward + (self.REWARD_AKTUELLES_STATE_SCORE * ((new_points*100) / max_points_possible))
+            reward_momentan = reward_momentan + (self.REWARD_AKTUELLES_STATE_SCORE * ((new_points*100) / max_points_possible))
 
         # an hier potenzial Komponente ----------------------------------------------------
+
+        #Freie Kacheln reward
+        reward_potenzial = reward_potenzial + ((self.REWARD_POTENZIAL_STATE_FREIE_KACHELN / 14) * self.get_free_boxes())
+
+        #Größte kachel in ecke
+        if self.biggest_in_corner():
+            reward_potenzial = reward_potenzial + self.REWARD_POTENZIAL_STATE_ECKE
+
+
+        #Ration festlegen der Komponenten
+        reward = (self.REWARD_KOMPONENTEN_RATIO * reward_momentan) + ((1-self.REWARD_KOMPONENTEN_RATIO) * reward_potenzial)
+
         return reward
 
     # TODO: Auslagern zu Logix diese Funktion
     # max points per step ist alle 2 gleichen mit sum aufaddieren
-    def calc_max_points_possible(self, matrix):
-        doppelte = []
-        sum = 0
+    def calc_max_points_possible(self):
+        doppelte_right_left = []
+        doppelte_up_down = []
+        sum_right_left = 0
+        sum_up_down = 0
+        not_found_right_left = True
+        not_found_up_down = True
+
         for i in range(4):
             for j in range(4):
-                if matrix[i][j] in doppelte:
-                    doppelte.remove(matrix[i][j])
-                    sum = sum + (matrix[i][j]*2)
-                else:
-                    doppelte.append(matrix[i][j])
-        return sum
+                #nach dem eine zahl bereits in doppelte drinnen ist und einen in der nähre hat wird summiert ansonste wird in der doppelten liste gepackt wenn in der nähe ansonsten next
+                #runter schauen
+                if self.matrix_old[i][j] == 0:
+                    continue
+                if i == 0 or i == 1 or i == 2:
+                    if self.matrix_old[i][j] == self.matrix_old[i+1][j]:
+                        if self.matrix_old[i][j] in doppelte_up_down:
+                            doppelte_up_down.remove(self.matrix_old[i][j])
+                            sum_up_down += (self.matrix_old[i][j] * 2)
+                            not_found_up_down = False
+                        else:
+                            doppelte_up_down.append(self.matrix_old[i][j])
+
+                # rechts schauen
+                if j == 0 or j == 1 or j == 2:
+                    if self.matrix_old[i][j] == self.matrix_old[i][j+1]:
+                        if self.matrix_old[i][j] in doppelte_right_left:
+                            doppelte_right_left.remove(self.matrix_old[i][j])
+                            sum_right_left += (self.matrix_old[i][j] * 2)
+                            not_found_right_left = False
+                        else:
+                            doppelte_right_left.append(self.matrix_old[i][j])
+
+
+                # oben schauen
+                if i == 1 or i == 2 or i == 3:
+                    if self.matrix_old[i][j] == self.matrix_old[i-1][j]:
+                        if not_found_up_down:
+                            if self.matrix_old[i][j] in doppelte_up_down:
+                                doppelte_up_down.remove(self.matrix_old[i][j])
+                                sum_up_down += (self.matrix_old[i][j] * 2)
+                            else:
+                                doppelte_up_down.append(self.matrix_old[i][j])
+
+                # links schauen
+                if j == 1 or j == 2 or j == 3:
+                    if self.matrix_old[i][j] == self.matrix_old[i][j-1]:
+                        if not_found_right_left:
+                            if self.matrix_old[i][j] in doppelte_right_left:
+                                doppelte_right_left.remove(self.matrix_old[i][j])
+                                sum_right_left += (self.matrix_old[i][j] * 2)
+                            else:
+                                doppelte_right_left.append(self.matrix_old[i][j])
+
+                not_found_right_left = True
+                not_found_up_down = True
+        return max(sum_right_left, sum_up_down)
+
+    def get_free_boxes(self):
+        return 16 - np.sum(np.count_nonzero(self.matrix))
+
+    def biggest_in_corner(self):
+        if self.matrix[0][0] == self.biggest_tile or self.matrix[0][3] == self.biggest_tile or self.matrix[3][0] == self.biggest_tile or self.matrix[3][3] == self.biggest_tile:
+            return True
+        return False
 
     def step(self, action):
         #TODO: Check hier ob die neue matrix auch wirklich die neue ist und die alte die alte und nicht das beide gleich sind
@@ -164,13 +233,14 @@ class GameGrid(Frame):
 
     #TODO: Auslagern zu Logix diese Funktion
     #TODO: Falls ich andere Matrixen benutze ausser 4x4 dann hier auch ändern
-    #TODO:  Feature Scaling Methode Normalisierung Einabuen zahlen von 0-1
-    def translate_matrix(self, matrix):
+    def translate_matrix(self):
         new_matrix = np.zeros((4, 4))
         for i in range(4):
             for j in range(4):
-                if matrix[i][j] != 0:
-                    new_matrix[i][j] = math.log2(matrix[i][j])
+                if self.matrix[i][j] != 0:
+                    new_matrix[i][j] = (math.log2(self.matrix[i][j])  / 17) - 0.5 # das 2 hoch x bekommen und dann Feature scaling normalization und zentrieren
+                elif self.matrix[i][j] == 0:
+                    new_matrix[i][j] = -0.5
         return new_matrix
 
     def init_grid(self):
@@ -198,15 +268,15 @@ class GameGrid(Frame):
         return random.randint(0, c.GRID_LEN - 1)
 
     def init_matrix(self):
-        #TODO: IST DIE 90% 10% Wahrscheinlichkeit einer 4 nicht drinnen oder was?
         self.matrix = logic.new_game(4)
         self.history_matrixs = list()
-        self.matrix = logic.add_two(self.matrix)
-        self.matrix = logic.add_two(self.matrix)
+
+        self.matrix = logic.add_two_or_four(self.matrix)
+        self.matrix = logic.add_two_or_four(self.matrix)
 
         #TODO: Name anpassen zb. state_
         self.matrix_old = self.matrix
-        self.powers_of_two_matrix = np.zeros((4, 4))
+        self.normalized_matrix = np.zeros((4, 4))
 
     def update_grid_cells(self):
         for i in range(c.GRID_LEN):
@@ -236,17 +306,17 @@ class GameGrid(Frame):
 #TODO: Sollte am anfang eines programms eine auswahl passieren ob man selber spielen möchte oder nicht ? oder zb. ein Tipp Butten der mit den besten tipp gibt wär auch cool
     def check_if_done(self, done):
         if done:
-            self.matrix = logic.add_two(self.matrix)
+            self.matrix = logic.add_two_or_four(self.matrix)
             # record last move
             self.history_matrixs.append(self.matrix)
             self.update_grid_cells()
             done = False
-            if logic.game_state(self.matrix) == 'win':
-                #TODO: Hier den limit für 2048 löschen um zu schauen wie weit er kommen wird
-                self.grid_cells[1][1].configure(
-                    text="You", bg=c.BACKGROUND_COLOR_CELL_EMPTY)
-                self.grid_cells[1][2].configure(
-                    text="Win!", bg=c.BACKGROUND_COLOR_CELL_EMPTY)
+            #if logic.game_state(self.matrix) == 'win':
+                #TODO: Hier bekomme nie gamestate win da in logic geändert
+                #self.grid_cells[1][1].configure(
+                #    text="You", bg=c.BACKGROUND_COLOR_CELL_EMPTY)
+                #self.grid_cells[1][2].configure(
+                #    text="Win!", bg=c.BACKGROUND_COLOR_CELL_EMPTY)
             if logic.game_state(self.matrix) == 'lose':
                 self.quit()
                 self.destroy()
@@ -261,17 +331,16 @@ class GameGrid(Frame):
     def check_if_done_auto(self, done):
         if done:
             #TODO: Hier matrix nach aktion oder normale matrix?
-            self.matrix = logic.add_two(self.matrix)
+            self.matrix = logic.add_two_or_four(self.matrix)
             # record last move
             self.history_matrixs.append(self.matrix)
             self.update_grid_cells()
             done = False
-            if logic.game_state(self.matrix) == 'win':
-                #TODO: Hier den limit für 2048 löschen um zu schauen wie weit er kommen wird
-                self.grid_cells[1][1].configure(
-                    text="You", bg=c.BACKGROUND_COLOR_CELL_EMPTY)
-                self.grid_cells[1][2].configure(
-                    text="Win!", bg=c.BACKGROUND_COLOR_CELL_EMPTY)
+            #if logic.game_state(self.matrix) == 'win':
+             #   self.grid_cells[1][1].configure(
+              #      text="You", bg=c.BACKGROUND_COLOR_CELL_EMPTY)
+               # self.grid_cells[1][2].configure(
+                #    text="Win!", bg=c.BACKGROUND_COLOR_CELL_EMPTY)
             if logic.game_state(self.matrix) == 'lose':
                 self.quit()
                 self.destroy()

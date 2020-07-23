@@ -8,6 +8,7 @@ from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Dense, Activation, MaxPooling2D, Conv2D, Dropout, Flatten
 
 
+
 # Agents Memory
 # allows to sample non sequential memories
 ##############################################################################################################################################################################################################################################################
@@ -92,6 +93,28 @@ def create_model(self, lr, n_actions, input_dims, conv1_dims, dropout_conv1, con
 
     return model
 
+def create_model_2(self, lr, n_actions, input_dims, conv1_dims, dropout_conv1, conv2_dims, dropout_conv2, fcl_dims):
+    model = Sequential()
+    # add model layers
+    # conv1_dims = 128 -- input_dims =  4,4,1
+    #TODO: input_shape=(4,4,1),) should be parameterised so it can also play other grid sizes
+    model.add(Conv2D(32, kernel_size=(2, 2),
+                     activation='relu', padding='same', input_shape=(4, 4, 1,)))
+    model.add(MaxPooling2D(2, 2))
+    model.add(Dropout(dropout_conv1))  # dropout_conv1 = 0.2
+    # conv2_dims = 128
+    model.add(Conv2D(32, kernel_size=(2, 2),
+                     activation='relu', padding='same'))
+    model.add(MaxPooling2D(2, 2))
+    model.add(Dropout(dropout_conv2))  # dropout_conv2 = 0.2
+    model.add(Flatten())
+    model.add(Dense(n_actions))  # n_actions = 4
+    model.add(Activation('softmax'))
+    # learning rate = 0.001
+    model.compile(loss='mse', optimizer=Adam(lr=lr), metrics=['accuracy'])
+
+    return model
+
 ##############################################################################################################################################################################################################################################################
 
 
@@ -105,8 +128,9 @@ class DDQNAgent(object):
     # um wv epsilon weniger wird - epsilon minimum wert, max memory size = 1 million
     # name of file - nach wv er syncen soll zwischen den 2 Networks replace target ist hyper parameter
     def __init__(self, alpha, gamma, n_actions, epsilon, batch_size,
-                 input_dims, epsilon_decr=0.999966, epsilon_end=0.001,
-                 mem_size=1000000, fname='ddqn_model.h5', replace_target=25):
+                 input_dims, epsilon_decr=1, epsilon_end=0.001,
+                 mem_size=1000000, fname='exp0_ddqn_model.h5', replace_target=80):
+
         self.n_actions = n_actions
         self.action_space = [i for i in range(self.n_actions)]
         self.gamma = gamma

@@ -34,13 +34,18 @@ def new_game(n):
 # 1 mark for creating the correct loop
 
 
-def add_two(mat):
+def add_two_or_four(mat):
     a = random.randint(0, len(mat)-1)
     b = random.randint(0, len(mat)-1)
     while(mat[a][b] != 0):
         a = random.randint(0, len(mat)-1)
         b = random.randint(0, len(mat)-1)
-    mat[a][b] = 2
+
+    #Percentage verteilung vom Spiel
+    if random.randint(0, 100) < 10:
+        mat[a][b] = 4
+    else:
+        mat[a][b] = 2
     return mat
 
 ###########
@@ -153,15 +158,13 @@ def merge(mat):
             if mat[i][j] == mat[i][j+1] and mat[i][j] != 0:
                 mat[i][j] *= 2
                 score += mat[i][j]
-                # TODO HIER Funktion einfügen mit score addieren mit den neuen mat[i][j]
-                # TODO Es möglich machen zu restarten ohne die Daten zu löchen nicht hier sondern woanders
                 mat[i][j+1] = 0
                 done = True
     return (mat, done, score)
 
 
 def up(game):
-    print("up")
+    #print("up")
     # return matrix after shifting up
     game = transpose(game)
     game, done = cover_up(game)
@@ -175,7 +178,7 @@ def up(game):
 
 
 def down(game):
-    print("down")
+    #print("down")
     game = reverse(transpose(game))
     game, done = cover_up(game)
     temp = merge(game)
@@ -188,7 +191,7 @@ def down(game):
 
 
 def left(game):
-    print("left")
+    #print("left")
     # return matrix after shifting left
     game, done = cover_up(game)
     temp = merge(game)
@@ -200,7 +203,7 @@ def left(game):
 
 
 def right(game):
-    print("right")
+    #print("right")
     # return matrix after shifting right
     game = reverse(game)
     game, done = cover_up(game)
