@@ -11,13 +11,13 @@ import constants as c
 
 class GameGrid(Frame):
     #TODO: VARIABLEN NAMEN IN ENGLISH UND MEHR HYPERPARAMETER HINZUFÜGEN ZUM TWEAKEN
-    REWARD_KOMPONENTEN_RATIO = 0.25
+    REWARD_KOMPONENTEN_RATIO = 0.5
 
-    REWARD_AKTUELLES_STATE_GROSSTE_KACHEL = 0.5
-    REWARD_AKTUELLES_STATE_SCORE = 0.5
+    REWARD_AKTUELLES_STATE_GROSSTE_KACHEL = 0.25
+    REWARD_AKTUELLES_STATE_SCORE = 0.75
 
-    REWARD_POTENZIAL_STATE_ECKE = 0.25
-    REWARD_POTENZIAL_STATE_FREIE_KACHELN = 0.75
+    REWARD_POTENZIAL_STATE_ECKE = 0.75
+    REWARD_POTENZIAL_STATE_FREIE_KACHELN = 0.25
     #REWARD_POTENZIAL_STATE_MONOTONIE = 0.2
     #REWARD_POTENZIAL_STATE_GLEICHMAESSIG = 0.2
 
@@ -132,7 +132,7 @@ class GameGrid(Frame):
         #Ration festlegen der Komponenten
         reward = (self.REWARD_KOMPONENTEN_RATIO * reward_momentan) + ((1-self.REWARD_KOMPONENTEN_RATIO) * reward_potenzial)
 
-        return reward * 2
+        return reward
 
     # TODO: Auslagern zu Logix diese Funktion
     # max points per step ist alle 2 gleichen mit sum aufaddieren
