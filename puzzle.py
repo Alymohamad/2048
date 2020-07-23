@@ -11,7 +11,7 @@ import constants as c
 
 class GameGrid(Frame):
     #TODO: VARIABLEN NAMEN IN ENGLISH UND MEHR HYPERPARAMETER HINZUFÜGEN ZUM TWEAKEN
-    REWARD_KOMPONENTEN_RATIO = 0.5
+    REWARD_KOMPONENTEN_RATIO = 0.75
 
     REWARD_AKTUELLES_STATE_GROSSTE_KACHEL = 0.5
     REWARD_AKTUELLES_STATE_SCORE = 0.5
@@ -238,9 +238,9 @@ class GameGrid(Frame):
         for i in range(4):
             for j in range(4):
                 if self.matrix[i][j] != 0:
-                    new_matrix[i][j] = (math.log2(self.matrix[i][j])  / 17) - 0.5 # das 2 hoch x bekommen und dann Feature scaling normalization und zentrieren
+                    new_matrix[i][j] = (math.log2(self.matrix[i][j])  / 17) # das 2 hoch x bekommen und dann Feature scaling normalization und zentrieren
                 elif self.matrix[i][j] == 0:
-                    new_matrix[i][j] = -0.5
+                    new_matrix[i][j] = 0
         return new_matrix
 
     def init_grid(self):
