@@ -143,11 +143,11 @@ class DDQNAgent(object):
         self.memory = ReplayBuffer(mem_size, input_dims, n_actions)
         # evaluate DQN - fitting Model
         self.q_eval = create_model(
-            self, alpha, n_actions, input_dims, 128, 0.2, 128, 0.2, 256)
+            self, alpha, n_actions, input_dims, 256, 0.2, 256, 0.2, 512)
         # alpha, n_actions, input_dims, 128, 0.2, 128, 0.2, 265
         # Target DQN - never gonna perform any fitting on it going to sync the weights every replace_target steps
         self.target = create_model(
-            self, alpha, n_actions, input_dims, 128, 0.2, 128, 0.2, 256)
+            self, alpha, n_actions, input_dims, 256, 0.2, 256, 0.2, 512)
 
 
     # stores state transitions
