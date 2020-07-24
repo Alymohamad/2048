@@ -34,13 +34,31 @@ def new_game(n):
 # 1 mark for creating the correct loop
 
 
-def add_two_or_four(mat):
+def add_two_or_four_OLD(mat):
     a = random.randint(0, len(mat)-1)
     b = random.randint(0, len(mat)-1)
     while(mat[a][b] != 0):
         a = random.randint(0, len(mat)-1)
         b = random.randint(0, len(mat)-1)
 
+    #Percentage verteilung vom Spiel
+    if random.randint(0, 100) < 10:
+        mat[a][b] = 4
+    else:
+        mat[a][b] = 2
+    return mat
+
+def add_two_or_four(mat):
+    free_tiles = []
+
+    for i in range(len(mat)):
+        for j in range(len(mat[0])):
+            if mat[i][j] == 0:
+                free_tiles.append(str(i)+str(j))
+
+    tile = free_tiles.pop(random.randint(0, len(free_tiles) - 1))
+    a = int(tile[:1])
+    b = int(tile[-1])
     #Percentage verteilung vom Spiel
     if random.randint(0, 100) < 10:
         mat[a][b] = 4

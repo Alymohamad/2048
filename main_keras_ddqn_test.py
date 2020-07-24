@@ -120,7 +120,7 @@ if __name__ == '__main__':
             #print('------------------- hier')
             gamegrid.ddqn_agent.save_model()
 
-        epoches.append(i)
+        epoches.append(i+1)
 
         #TODO: Eine Liste machen und speichern wie oft welches grösste Tile erreicht wurde wie oft welches grösste Tile erreicht wurde
         #TODO: Diagramme und Modells nicht immer überschreiben sondern extra ordner für jedes einzelne machen und immer passend benennen
@@ -130,6 +130,8 @@ if __name__ == '__main__':
     print(filename_score)
 
     x = [i+1 for i in range(n_games)]
+
+
 
     #plot_learning_curve(x, np.array(epoches), np.array(ddqn_scores), filename_score)
     plot_learning_curve_simple(np.array(epoches), np.array(ddqn_scores), filename_score)
