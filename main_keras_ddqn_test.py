@@ -82,10 +82,10 @@ if __name__ == '__main__':
     #TODO: Problem mit input Shape da bei ihm vector von 8 zahlen bei mir 4x4x1 matrix
     ddqn_agent = DDQNAgent(alpha=0.0005, gamma=0.99, n_actions=4, epsilon=1.0,
                             batch_size=64, input_dims=4)
-    n_games = 8000
+    n_games = 2000
 
     # load saved Model Here
-    #ddqn_agent.load_model()
+    ddqn_agent.load_model()
 
     #TODO: Alles in numpy arrays umwandeln
     epoches = []
