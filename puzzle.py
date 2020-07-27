@@ -59,7 +59,7 @@ class GameGrid(Frame):
         self.normalized_matrix = self.translate_matrix()
 
         #TODO: WIESO WIRD CHOOSE ACION NICHT ERKANNT????????????????? !!!!!!!!!!!!!!!!!!!!!!!!!!
-        reward, done_new, action = self.step(self.ddqn_agent.choose_action(self.normalized_matrix))
+        reward, done_new, action = self.step(self.ddqn_agent.choose_action(self.normalized_matrix, np.array(self.matrix)))
         done = self.check_if_done_auto(done_new)
         if done != True:
             done = False
@@ -222,6 +222,8 @@ class GameGrid(Frame):
 
 
         return (reward, done, action)
+
+
 
     def get_biggest_tile(self, matrix):
         biggest_tile = 0

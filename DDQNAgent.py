@@ -6,8 +6,7 @@ import numpy as np  # For numerical fast numerical calculations
 from tensorflow.keras.optimizers import Adam  # Imports keras
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Dense, Activation, MaxPooling2D, Conv2D, Dropout, Flatten
-
-
+import logic
 
 # Agents Memory
 # allows to sample non sequential memories
@@ -128,7 +127,7 @@ class DDQNAgent(object):
     # um wv epsilon weniger wird - epsilon minimum wert, max memory size = 1 million
     # name of file - nach wv er syncen soll zwischen den 2 Networks replace target ist hyper parameter
     def __init__(self, alpha, gamma, n_actions, epsilon, batch_size,
-                 input_dims, epsilon_decr=0.9999993, epsilon_end=0.2,
+                 input_dims, epsilon_decr=0.9999993, epsilon_end=0.001,
                  mem_size=1000000, fname='exp2_ddqn_model.h5', replace_target=1000):
 
         self.n_actions = n_actions
@@ -155,7 +154,7 @@ class DDQNAgent(object):
         self.memory.store_transition(state, action, reward, new_states, terminal)
 
     #TODO: Hier ausschließen das eine nicht mögliche aktion ausgewählt wird
-    def choose_action(self, state):
+    def choose_action(self, state, matrix):
         state = state[np.newaxis, :]
         rand = np.random.random()
         if rand < self.epsilon:
@@ -163,8 +162,36 @@ class DDQNAgent(object):
             action = np.random.choice(self.action_space)
         else:
             actions = self.q_eval.predict(np.expand_dims(state, -1))
-            action = np.argmax(actions) #TODO: dann mach ich ja trotzdem max Operation???
+            #Hier checken ob vorbei wenn nicht dann
+            #HIER zwischen array mit schleife
+            action = self.check_if_possible(actions, matrix)
+            #action = np.argmax(actions) #TODO: dann mach ich ja trotzdem max Operation???
+            #TODO: Hier mach so lange etwas possible und wenn nichts possible dann halt lost
         return action
+
+    def check_if_possible(self, actions, matrix):
+        found = False
+        possible_actions = np.array(actions[0])
+
+        while not np.all(possible_actions == -1):
+            action = np.argmax(possible_actions)
+            matrix_new = matrix.copy()
+
+            if action == 0:
+                matrix_new = np.array(logic.up(matrix_new))
+            elif action == 1:
+                matrix_new = np.array(logic.right(matrix_new))
+            elif action == 2:
+                matrix_new = np.array(logic.down(matrix_new))
+            elif action == 3:
+                matrix_new = np.array(logic.left(matrix_new))
+
+            matrix_new = matrix_new[0]
+
+            if not np.array_equal(matrix, matrix_new):
+                return action
+            else:
+                possible_actions[possible_actions == possible_actions[action]] = -1
 
     #at first start playing to fill agents memory than start learning when filled
     def learn(self):
