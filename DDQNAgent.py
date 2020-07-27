@@ -73,8 +73,8 @@ class ReplayBuffer(object):
 def create_model(self, lr, n_actions, input_dims, conv1_dims, dropout_conv1, conv2_dims, dropout_conv2, fcl_dims):
     model = Sequential()
     # add model layers
+
     # conv1_dims = 128 -- input_dims =  4,4,1
-    #TODO: input_shape=(4,4,1),) should be parameterised so it can also play other grid sizes
     model.add(Conv2D(conv1_dims, kernel_size=(2, 2),
                      activation='relu', padding='same', input_shape=(input_dims, input_dims, 1,)))
     model.add(MaxPooling2D(2, 2))
@@ -128,8 +128,8 @@ class DDQNAgent(object):
     # um wv epsilon weniger wird - epsilon minimum wert, max memory size = 1 million
     # name of file - nach wv er syncen soll zwischen den 2 Networks replace target ist hyper parameter
     def __init__(self, alpha, gamma, n_actions, epsilon, batch_size,
-                 input_dims, epsilon_decr=0.99999, epsilon_end=0.15,
-                 mem_size=1000000, fname='exp1_ddqn_model.h5', replace_target=100):
+                 input_dims, epsilon_decr=0.9999993, epsilon_end=0.2,
+                 mem_size=1000000, fname='exp2_ddqn_model.h5', replace_target=1000):
 
         self.n_actions = n_actions
         self.action_space = [i for i in range(self.n_actions)]

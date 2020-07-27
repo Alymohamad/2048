@@ -85,7 +85,7 @@ if __name__ == '__main__':
     n_games = 2000
 
     # load saved Model Here
-    ddqn_agent.load_model()
+    #ddqn_agent.load_model()
 
     #TODO: Alles in numpy arrays umwandeln
     epoches = []
@@ -124,9 +124,9 @@ if __name__ == '__main__':
 
         #TODO: Eine Liste machen und speichern wie oft welches grösste Tile erreicht wurde wie oft welches grösste Tile erreicht wurde
         #TODO: Diagramme und Modells nicht immer überschreiben sondern extra ordner für jedes einzelne machen und immer passend benennen
-    filename_score = 'exp1_Epoch_Score.png'
-    filename_tile = 'exp1_Epoch_Biggest_Tile.png'
-    filename_stats_tiles = 'exp1_biggest_tiles_stats.txt'
+    filename_score = 'exp2_Epoch_Score.png'
+    filename_tile = 'exp2_Epoch_Biggest_Tile.png'
+    filename_stats_tiles = 'exp2_biggest_tiles_stats.txt'
     print(filename_score)
 
     x = [i+1 for i in range(n_games)]
