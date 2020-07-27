@@ -127,8 +127,8 @@ class DDQNAgent(object):
     # um wv epsilon weniger wird - epsilon minimum wert, max memory size = 1 million
     # name of file - nach wv er syncen soll zwischen den 2 Networks replace target ist hyper parameter
     def __init__(self, alpha, gamma, n_actions, epsilon, batch_size,
-                 input_dims, epsilon_decr=0.9999993, epsilon_end=0.001,
-                 mem_size=1000000, fname='exp2_ddqn_model.h5', replace_target=1000):
+                 input_dims, epsilon_decr=1, epsilon_end=0.001,
+                 mem_size=1000000, fname='exp1_ddqn_model.h5', replace_target=100):
 
         self.n_actions = n_actions
         self.action_space = [i for i in range(self.n_actions)]
@@ -157,6 +157,7 @@ class DDQNAgent(object):
     def choose_action(self, state, matrix):
         state = state[np.newaxis, :]
         rand = np.random.random()
+        rand = 2
         if rand < self.epsilon:
             #TODO: possible action space übergeben und nicht normale action space
             action = np.random.choice(self.action_space)
